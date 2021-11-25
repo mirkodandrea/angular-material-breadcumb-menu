@@ -1,9 +1,8 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" [matMenuTriggerFor]="menu">
   <span *ngFor="let choice of menuHeader; let indx = index">
     <a
       *ngIf="choice.choices?.length > 0; else leafChoice"
       mat-button
-      [matMenuTriggerFor]="menu"
       (click)="selectChoiche(choice, $event)"
     >
       {{ choice.name }}
@@ -16,13 +15,20 @@
 
 <mat-menu #menu="matMenu" yPosition="below" class="customize" [class]="'menu'">
   <div class="menu-options-wrapper">
-    <button
-      *ngFor="let choice of menuChoices; trackBy: trackChoice"
-      (click)="selectChoiche(choice, $event)"
-      mat-menu-item
-    >
-      {{ choice.name }}
-      {{ choice.choices.length > 0 ? '>' : '' }}
-    </button>
+    <div class="inner" *ngFor="let menu of menuHeader; index as idx">
+      <div *ngIf="menu.choices as choices" @items>
+        <button mat-button (click)="selectChoiche(menuHeader[idx - 1], $event)">
+          <<
+        </button>
+        <button
+          *ngFor="let choice of choices; trackBy: trackChoice"
+          (click)="selectChoiche(choice, $event)"
+          mat-menu-item
+        >
+          {{ choice.name }}
+          {{ choice.choices.length > 0 ? '>' : '' }}
+        </button>
+      </div>
+    </div>
   </div>
 </mat-menu>

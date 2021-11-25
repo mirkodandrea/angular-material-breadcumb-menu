@@ -12,6 +12,7 @@ import { BehaviorSubject } from 'rxjs';
 import { animation, animate, style, query, stagger } from '@angular/animations';
 
 import { folders as _folders } from './folders';
+import { AfterViewInit } from '@angular/core/src/metadata';
 
 export interface FolderView {
   id: string;
@@ -33,12 +34,30 @@ export interface Choice {
   selector: 'bread-cumb-menu',
   templateUrl: './bread-cumb-menu.component.html',
   styleUrls: ['./bread-cumb-menu.component.scss'],
+  animations: [
+    trigger('items', [
+      // cubic-bezier for a tiny bouncing feel
+      transition(':enter', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate(
+          '0.5s ease-in-out',
+          style({ transform: 'translateX(0px)', opacity: 1 })
+        ),
+      ]),
+      transition(':leave', [
+        style({ transform: 'translateX(0px)', opacity: 0 }),
+        animate(
+          '0.5s ease-in-out',
+          style({ transform: 'translateX(-100%)', opacity: 1 })
+        ),
+      ]),
+    ]),
+  ],
 })
-export class BreadCumbMenuComponent implements OnInit {
+export class BreadCumbMenuComponent implements OnInit, AfterViewInit {
   folders = null;
 
   menuHeader = [];
-  menuChoices: Choice[];
 
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
@@ -50,19 +69,22 @@ export class BreadCumbMenuComponent implements OnInit {
       id: '__all__',
       name: 'All',
       choices: this.folders.choices,
-      layers: null,
     };
     this.menuHeader = [baseMenu];
   }
 
+  ngAfterViewInit() {
+    //this.trigger.openMenu();
+  }
+
   selectChoiche(choice: Choice, $event: Event) {
+    console.log(choice);
     $event.preventDefault();
     $event.stopPropagation();
     const index = this.menuHeader.findIndex((c) => c.id === choice.id);
     const lastIndex = this.menuHeader.length - 1;
 
     if (index === lastIndex) {
-      this.menuChoices = choice.choices;
       this.trigger.openMenu();
       return;
     }
@@ -70,15 +92,13 @@ export class BreadCumbMenuComponent implements OnInit {
     if (index < 0) {
       // append new choice
       if (choice.choices?.length == 0) {
-        this.trigger.closeMenu();
-      } else {
-        this.menuChoices = choice.choices;
+        //this.trigger.closeMenu();
       }
       this.menuHeader = [...this.menuHeader, choice];
     } else {
       // choice already selected, close menu and remove choices beyond it;
-      this.menuHeader = [...this.menuHeader].splice(0, lastIndex - index);
-      this.trigger.closeMenu();
+      this.menuHeader = [...this.menuHeader].slice(0, index + 1);
+      //this.trigger.closeMenu();
     }
   }
 

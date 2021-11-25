@@ -2,5 +2,13 @@
   height: 300px;
   width: 280px;
   overflow-x: hidden;
-  transition: all 0.3s ease-in-out;
+
+  .inner {
+    background-color: white;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
 }
